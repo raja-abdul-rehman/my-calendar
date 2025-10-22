@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+.fc {
+  font-size: 14px;
+}
+.fc .fc-event {
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+.fc .fc-toolbar-title {
+  font-weight: 600;
+  font-size: 18px;
+}
+
