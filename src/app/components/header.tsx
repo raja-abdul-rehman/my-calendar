@@ -1,97 +1,341 @@
-import { FaGithub, FaSearch } from "react-icons/fa";
-import { BsCalendar2Week } from "react-icons/bs";
-function Header() {
+// ============================================================================
+// HEADER COMPONENT
+// ============================================================================
+// This component contains the main navigation bar with all the controls:
+// - Today button (jumps to current date and centers current time)
+// - Date navigation (previous/next day)
+// - Team members button
+// - Filter dropdown (select which staff members to show)
+// - Settings, refresh, and add buttons
+
+import { 
+  FaChevronLeft, 
+  FaChevronRight, 
+  FaCog, 
+  FaCalendarAlt, 
+  FaClock, 
+  FaSyncAlt, 
+  FaChevronDown, 
+  FaPlus 
+} from "react-icons/fa";
+import { useState, useRef, useEffect } from "react";
+
+// ============================================================================
+// INTERFACES
+// ============================================================================
+
+interface HeaderProps {
+  onFilterChange: (selectedResources: string[]) => void;
+  onDateChange: (date: Date) => void;
+}
+
+// ============================================================================
+// MAIN HEADER COMPONENT
+// ============================================================================
+
+function Header({ onFilterChange, onDateChange }: HeaderProps) {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+  
+  // Control filter dropdown visibility
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Track which staff members are selected in the filter
+  const [selectedResources, setSelectedResources] = useState<string[]>([
+    "abril", "allan", "bianca"
+  ]);
+  
+  // Track the current date being displayed
+  const [currentDate, setCurrentDate] = useState(new Date());
+  
+  // Reference to filter dropdown for outside click detection
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // ============================================================================
+  // STAFF MEMBERS DATA
+  // ============================================================================
+  
+  const resources = [
+    { id: "abril", name: "Abril Lewis" },
+    { id: "allan", name: "Allan Hicks" },
+    { id: "bianca", name: "Bianca West" }
+  ];
+
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+  
+  /**
+   * Close filter dropdown when clicking outside
+   * This provides better UX by automatically closing the dropdown
+   */
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+  
+  /**
+   * Toggle a staff member in the filter selection
+   * @param resourceId - ID of the staff member to toggle
+   */
+  const handleResourceToggle = (resourceId: string) => {
+    const newSelection = selectedResources.includes(resourceId)
+      ? selectedResources.filter(id => id !== resourceId) // Remove if already selected
+      : [...selectedResources, resourceId]; // Add if not selected
+    
+    setSelectedResources(newSelection);
+    onFilterChange(newSelection);
+  };
+
+  /**
+   * Select all staff members in the filter
+   */
+  const handleSelectAll = () => {
+    const allResources = resources.map(r => r.id);
+    setSelectedResources(allResources);
+    onFilterChange(allResources);
+  };
+
+  /**
+   * Deselect all staff members in the filter
+   */
+  const handleSelectNone = () => {
+    setSelectedResources([]);
+    onFilterChange([]);
+  };
+
+  /**
+   * Navigate to the previous day
+   */
+  const handlePreviousDate = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() - 1);
+    setCurrentDate(newDate);
+    onDateChange(newDate);
+  };
+
+  /**
+   * Navigate to the next day
+   */
+  const handleNextDate = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + 1);
+    setCurrentDate(newDate);
+    onDateChange(newDate);
+  };
+
+  /**
+   * Jump to today's date and center the current time
+   * This is the main "Today" button functionality
+   */
+  const handleToday = () => {
+    const today = new Date();
+    console.log('Today button clicked, setting date to:', today);
+    setCurrentDate(today);
+    onDateChange(today);
+    
+    // Add visual feedback to the button
+    const button = document.querySelector('[data-today-button]') as HTMLElement;
+    if (button) {
+      button.style.transform = 'scale(0.95)';
+      button.style.backgroundColor = '#10b981';
+      setTimeout(() => {
+        button.style.transform = 'scale(1)';
+        button.style.backgroundColor = '';
+      }, 150);
+    }
+  };
+
+  /**
+   * Format date for display in the header
+   * @param date - Date to format
+   * @returns Formatted date string (e.g., "Mon, Dec 16")
+   */
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+  
   return (
-    <header className="bg-gray-900 text-white border-b border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Logo and Brand */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8   flex items-center justify-center">
-            <BsCalendar2Week className="text-white text-2xl" />
-          </div>
-          <span className="text-2xl font-bold">FullCalendar</span>
-        </div>
-
-        {/* Navigation */}  
-        <nav className="hidden md:flex items-center gap-6 pr-96 text-sm">
-          <a href="#" className=" hover:text-sky-300 transition-colors">
-            Demos
-          </a>
-          <a
-            href="#"
-            className="text-yellow-400 font-medium px-3 py-2 hover:text-sky-300 bg-[#0e1014] hover:bg-[#0d1117] rounded-md transition-all duration-200"
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-9 py-6 shadow-sm">
+      <div className="flex items-center justify-between">
+        
+        {/* ====================================================================
+            LEFT SECTION - Navigation Controls
+        ==================================================================== */}
+        <div className="flex items-center gap-6">
+          
+          {/* TODAY BUTTON */}
+          <button 
+            data-today-button
+            onClick={handleToday}
+            className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-all duration-150 border border-gray-200 text-base hover:shadow-md active:scale-95"
           >
-            Docs
-          </a>
+            Today
+          </button>
 
-          <div className="relative group">
-            <button className="text-white  hover:text-sky-300 transition-all">
-              Support
+          {/* DATE NAVIGATION */}
+          <div className="flex items-center bg-gray-100 rounded-full border border-gray-200">
+            <button 
+              onClick={handlePreviousDate}
+              className="p-3 hover:bg-gray-200 rounded-l-full transition-colors"
+              title="Previous day"
+            >
+              <FaChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <div className="px-6 py-3 text-gray-700 font-medium text-base">
+              {formatDate(currentDate)}
+            </div>
+            <button 
+              onClick={handleNextDate}
+              className="p-3 hover:bg-gray-200 rounded-r-full transition-colors"
+              title="Next day"
+            >
+              <FaChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+
+          {/* TEAM MEMBERS BUTTON */}
+          <button 
+            className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors border border-gray-200"
+            title="Team Members"
+          >
+            <img src="/group-users.png" alt="Team Members" className="w-5 h-5" />
+          </button>
+
+          {/* FILTER DROPDOWN */}
+          <div className="relative" ref={filterRef}>
+            <button 
+              className={`p-3 rounded-full transition-colors border border-gray-200 flex items-center gap-2 ${
+                selectedResources.length < resources.length 
+                  ? 'bg-blue-100 hover:bg-blue-200 text-blue-700' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              title="Filter Staff Members"
+            >
+              <img src="/filters.png" alt="Filters" className="w-5 h-5" />
+              {selectedResources.length < resources.length && (
+                <span className="text-sm font-medium">{selectedResources.length}</span>
+              )}
             </button>
 
-            {/* underline */}
-            <span className="absolute left-0 -bottom-1 w-full h-[2px] bg-sky-400 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            {/* FILTER DROPDOWN MENU */}
+            {isFilterOpen && (
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="p-3 border-b border-gray-100">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-gray-900">Filter Resources</h3>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={handleSelectAll}
+                        className="text-xs text-blue-600 hover:text-blue-800"
+                      >
+                        All
+                      </button>
+                      <button 
+                        onClick={handleSelectNone}
+                        className="text-xs text-gray-600 hover:text-gray-800"
+                      >
+                        None
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-2">
+                  {resources.map((resource) => (
+                    <label key={resource.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedResources.includes(resource.id)}
+                        onChange={() => handleResourceToggle(resource.id)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{resource.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
-            {/* dropdown */}
-            <div className="absolute left-0 mt-2 hidden group-hover:block w-56 bg-[#1f2937] shadow-lg  rounded-md border border-[#2b3748]">
-              <ul className="flex flex-col py-2">
-                <li>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-300 hover:text-sky-300 transition-colors"
-                  >
-                    Getting Help
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-300 hover:text-sky-300 transition-colors"
-                  >
-                    Reporting Bugs
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-300 hover:text-sky-300  transition-colors"
-                  >
-                    Requesting Features
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-300 hover:text-sky-300  transition-colors"
-                  >
-                    Contributing
-                  </a>
-                </li>
-              </ul>
+        {/* ====================================================================
+            CENTER SECTION - Empty space for layout balance
+        ==================================================================== */}
+        <div className="flex-1"></div>
+
+        {/* ====================================================================
+            RIGHT SECTION - Action Buttons
+        ==================================================================== */}
+        <div className="flex items-center gap-6">
+          
+          {/* SETTINGS BUTTON */}
+          <button 
+            className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors border border-gray-200"
+            title="Settings"
+          >
+            <FaCog className="w-5 h-5" />
+          </button>
+
+          {/* CALENDAR WITH CLOCK BUTTON */}
+          <button 
+            className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors relative border border-gray-200"
+            title="Calendar Settings"
+          >
+            <FaCalendarAlt className="w-5 h-5" />
+            <FaClock className="w-3 h-3 absolute -top-1 -right-1 text-gray-500" />
+          </button>
+
+          {/* REFRESH BUTTON */}
+          <button 
+            className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors border border-gray-200"
+            title="Refresh"
+          >
+            <FaSyncAlt className="w-5 h-5" />
+          </button>
+
+          {/* VIEW SELECTOR */}
+          <div className="flex items-center bg-gray-100 rounded-full border border-gray-200">
+            <div className="px-6 py-3 text-gray-700 font-medium text-base">
+              Day
             </div>
+            <button 
+              className="p-3 hover:bg-gray-200 rounded-r-full transition-colors"
+              title="Change View"
+            >
+              <FaChevronDown className="w-4 h-4 text-gray-600" />
+            </button>
           </div>
 
-          <a
-            href="#"
-            className="border-3 border-sky-300 px-4 py-2 rounded hover:bg-sky-300 hover:text-black transition-colors"
+          {/* ADD BUTTON */}
+          <button 
+            className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-colors flex items-center gap-2 text-base"
+            title="Add Event"
           >
-            Pricing
-          </a>
-        </nav>
-
-        {/* Right Side */}
-        <div className="flex items-center gap-4">
-          <span className="text-sm underline underline-offset-4 decoration-2 decoration-yellow-300">
-            <span className="text-yellow-200 font-medium">Latest: </span>
-            <span className=""> v6.1.19</span>
-          </span>
-
-          <a
-            href="#"
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            <FaGithub className="text-3xl text-white" />
-          </a>
+            Add
+            <FaChevronDown className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </header>

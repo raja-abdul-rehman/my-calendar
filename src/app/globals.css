@@ -1,4 +1,15 @@
+/* ============================================================================
+   GLOBAL STYLES FOR CALENDAR APPLICATION
+   ============================================================================
+   This file contains all the custom styling for the calendar application.
+   It includes Tailwind imports, CSS variables, and FullCalendar customizations.
+   ============================================================================ */
+
 @import "tailwindcss";
+
+/* ============================================================================
+   CSS VARIABLES & THEME CONFIGURATION
+   ============================================================================ */
 
 :root {
   --background: #ffffff;
@@ -19,22 +30,230 @@
   }
 }
 
+/* ============================================================================
+   BASE BODY STYLING
+   ============================================================================ */
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ============================================================================
+   FULLCALENDAR BASE STYLING
+   ============================================================================ */
 
 .fc {
   font-size: 14px;
 }
+
+/* ============================================================================
+   EVENT STYLING
+   ============================================================================ */
+
 .fc .fc-event {
-  border-radius: 6px;
-  padding: 2px 4px;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin: 2px;
+  font-size: 12px;
+  font-weight: 500;
 }
+
+.fc .fc-timegrid-event {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+.fc .fc-timegrid-event-harness {
+  margin: 3px;
+}
+
+.fc .fc-timegrid-event-harness-inset {
+  margin: 3px;
+}
+
+/* ============================================================================
+   TOOLBAR STYLING
+   ============================================================================ */
+
 .fc .fc-toolbar-title {
   font-weight: 600;
   font-size: 18px;
 }
 
+/* ============================================================================
+   TIME SLOT STYLING
+   ============================================================================ */
+
+.fc .fc-timegrid-slot {
+  height: 10em;
+  min-height: 10em;
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  padding: 0 20px;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  padding: 16px 0;
+}
+
+.fc .fc-timegrid-slot-minor {
+  border-color: #f1f5f9;
+}
+
+.fc .fc-timegrid-slot-major {
+  border-color: #e2e8f0;
+}
+
+/* ============================================================================
+   RESOURCE AREA STYLING (STAFF MEMBERS COLUMN)
+   ============================================================================ */
+
+.fc .fc-resource-area {
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  width: 200px;
+}
+
+.fc .fc-resource-cell {
+  padding: 40px 24px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #ffffff;
+}
+
+/* ============================================================================
+   TIME AXIS STYLING (LEFT TIME COLUMN)
+   ============================================================================ */
+
+.fc .fc-timegrid-axis {
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  width: 100px;
+}
+
+/* ============================================================================
+   CALENDAR BODY STYLING
+   ============================================================================ */
+
+.fc .fc-timegrid-body {
+  background-color: #f8fafc;
+  background-image: 
+    linear-gradient(45deg, rgba(0,0,0,0.03) 25%, transparent 25%), 
+    linear-gradient(-45deg, rgba(0,0,0,0.03) 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.03) 75%), 
+    linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.03) 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
+}
+
+.fc .fc-timegrid-col {
+  border-right: 1px solid #e5e7eb;
+}
+
+.fc .fc-timegrid-divider {
+  border-color: #e5e7eb;
+}
+
+/* ============================================================================
+   SCROLL GRID STYLING
+   ============================================================================ */
+
+.fc .fc-scrollgrid {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.fc .fc-scrollgrid-sync-table {
+  border: none;
+}
+
+/* ============================================================================
+   DAY STYLING
+   ============================================================================ */
+
+.fc .fc-timegrid-day {
+  background-color: #ffffff;
+}
+
+.fc .fc-timegrid-day-events {
+  margin: 0;
+}
+
+/* ============================================================================
+   CURRENT TIME INDICATOR STYLING (RED LINE)
+   ============================================================================
+   This creates the red line that shows the current time
+   ============================================================================ */
+
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #ef4444 !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  z-index: 100 !important;
+  position: relative !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-left-color: #ef4444 !important;
+  border-width: 4px !important;
+}
+
+.fc .fc-timegrid-now-indicator-label {
+  background-color: transparent !important;
+  color: #ef4444 !important;
+  border: 1px solid #ef4444 !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  animation: none !important;
+  position: relative !important;
+  z-index: 101 !important;
+  margin-left: 8px !important;
+}
+
+.fc .fc-timegrid-now-indicator {
+  z-index: 100 !important;
+  position: relative !important;
+}
+
+.fc .fc-timegrid-slot.fc-timegrid-slot-now {
+  background-color: transparent !important;
+}
+
+/* ============================================================================
+   TODAY BUTTON STYLING
+   ============================================================================
+   Enhanced styling for the "Today" button with visual feedback
+   ============================================================================ */
+
+[data-today-button] {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-today-button]:active {
+  transform: scale(0.95) !important;
+}
+
+[data-today-button]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
